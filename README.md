@@ -1,36 +1,40 @@
-# Smart Contract Example
+# Error Handling Smart Contract
 
-This repository contains a simple Solidity smart contract demonstrating the usage of `require()`, `assert()`, and `revert()` statements.
+This is a Solidity smart contract demonstrating error handling mechanisms.
 
-## Table of Contents
+## Smart Contract Details
 
-- [Introduction](#introduction)
-- [Contract Details](#contract-details)
-- [Functions](#functions)
+- **Contract Name**: `errorHandling`
+- **Solidity Version**: ^0.8.0
 
-## Introduction
+### Functions
 
-This smart contract showcases how to implement `require()`, `assert()`, and `revert()` statements in Solidity. It includes functions that take parameters to trigger different conditions.
+1. `deposit(uint amount)`
+   - Allows users to deposit Ether into their account.
+   - Requirements: Amount must be greater than 0.
 
-## Contract Details
+2. `transfer(address to, uint value)`
+   - Allows users to transfer Ether to another address.
+   - Requirements:
+     - User must have sufficient balance.
+     - Destination address must be valid.
+     - Checks for potential overflow.
 
-- **Owner**: [OwnerAddress]
-- **Initial Value**: 100
+3. `withdraw(uint value)`
+   - Allows users to withdraw Ether from their account.
+   - Requirements: User must have sufficient balance.
 
-## Functions
+4. `sendEtherWithRevert(address to, uint value)`
+   - Demonstrates an intentional revert scenario.
+   - Requirements:
+     - User must have sufficient balance.
+     - Destination address must be valid.
+     - Checks for potential overflow.
+   - Triggers a revert with the message "Intentional revert".
 
-### `setValue(uint _newValue)`
+### Events
 
-Allows the owner to set a new value.
-
-### `requireExample(bool condition)`
-
-Demonstrates the usage of `require()`. Takes a boolean `condition` parameter. If `condition` is `false`, it will revert the transaction.
-
-### `assertExample(uint a, uint b)`
-
-Demonstrates the usage of `assert()`. Takes two parameters `a` and `b`. It will trigger an assertion failure if `a` is not equal to `b`.
-
-### `revertExample(uint a, uint b)`
-
-Demonstrates the usage of `revert()`. Takes two parameters `a` and `b`. It will revert the transaction with a specific error message if `a` is not equal to `b`.
+- `Deposit(address indexed from, uint value)`
+- `Transfer(address indexed to, uint value)`
+- `Withdraw(address indexed to, uint value)`
+- `SentEther(address indexed from, address indexed to, uint value)`

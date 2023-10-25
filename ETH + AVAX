@@ -1,34 +1,51 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SmartContract {
-    address public owner;
-    uint public value;
+contract errorHandling {
+    mapping(address => uint) public balances;
 
-    constructor() {
-        owner = msg.sender;
-        value = 100;
+    event Deposit(address indexed from, uint value);
+    event Transfer(address indexed to, uint value);
+    event Withdraw(address indexed to, uint value);
+    event SentEther(address indexed from, address indexed to, uint value);
+
+    function deposit(uint amount) public payable {
+        require(amount > 0, "Must deposit a non-zero amount");
+        balances[msg.sender] += amount;
+        emit Deposit(msg.sender, amount);
     }
 
-    function setValue(uint _newValue) public {
-        require(msg.sender == owner, "Only the owner can change the value");
-        value = _newValue;
+    function transfer(address to, uint value) public {
+        require(balances[msg.sender] >= value, "Insufficient balance");
+        require(to != address(0), "Invalid address");
+        
+        // Add assert to check for potential overflow
+        assert(balances[to] + value >= balances[to]);
+        
+        balances[msg.sender] -= value;
+        balances[to] += value;
+        emit Transfer(to, value);
     }
 
-    function requireExample(bool condition) public pure returns (string memory) {
-        require(condition, "Require condition not met"); // This will revert if condition is false
-        return "Require condition met";
+    function withdraw(uint value) public {
+        require(balances[msg.sender] >= value, "Insufficient balance");
+        balances[msg.sender] -= value;
+
+        emit Withdraw(msg.sender, value);
     }
 
-    function assertExample(uint a, uint b) public pure returns (uint) {
-        assert(a == b); // This will trigger an assertion failure if a is not equal to b
-        return a + b; // This line will not be executed
-    }
+    function sendEtherWithRevert(address to, uint value) public {
+        require(balances[msg.sender] >= value, "Insufficient balance");
+        require(to != address(0), "Invalid address");
 
-    function revertExample(uint a, uint b) public pure returns (string memory) {
-        if (a != b) {
-            revert("a is not equal to b"); // This will revert the transaction
-        }
-        return "Execution completed"; // This line will not be executed
+        // Add assert to check for potential overflow
+        assert(balances[to] + value >= balances[to]);
+
+        balances[msg.sender] -= value;
+        balances[to] += value;
+        emit SentEther(msg.sender, to, value);
+
+        // Use revert() to intentionally trigger a revert
+        revert("Intentional revert");
     }
 }
